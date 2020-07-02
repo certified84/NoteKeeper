@@ -68,8 +68,9 @@ public class NoteActivity extends AppCompatActivity {
         mTextNoteTitle = findViewById(R.id.text_note_title);
         mTextNoteText = findViewById(R.id.text_note_text);
 
-        if(!mIsNewNote)
+        if(!mIsNewNote) {
             loadNoteData();
+        }
 
     }
 
@@ -80,7 +81,7 @@ public class NoteActivity extends AppCompatActivity {
         String titleStart = "dynamic";
 
         String selection = NoteInfoEntry.COLUMN_COURSE_ID + " = ? AND " +
-                NoteInfoEntry.COLUMN_NOTE_TITLE + " LIKE ?";
+                NoteInfoEntry.COLUMN_NOTE_TITLE + " LIKE ? ";
         String[] selectionArgs = {courseId, titleStart, "%"};
 
         String[] noteColumns = {
@@ -152,20 +153,20 @@ public class NoteActivity extends AppCompatActivity {
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
         CourseInfo course = DataManager.getInstance().getCourse(courseId);
         int courseIndex = courses.indexOf(course);
-       mSpinnerCourses.setSelection(courseIndex);
-       mTextNoteTitle.setText(noteTitle);
-       mTextNoteText.setText(noteText);
+        mSpinnerCourses.setSelection(courseIndex);
+        mTextNoteTitle.setText(noteTitle);
+        mTextNoteText.setText(noteText);
     }
 
     private void readDisplayStateValues() {
         Intent intent = getIntent();
-        int position = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
-        mIsNewNote = position == POSITION_NOT_SET;
+        mNotePosition = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
+        mIsNewNote = mNotePosition == POSITION_NOT_SET;
         if(mIsNewNote){
             createNewNote();
         }
         else
-            mNote = DataManager.getInstance().getNotes().get(position);
+            mNote = DataManager.getInstance().getNotes().get(mNotePosition);
     }
 
     private void createNewNote() {
@@ -217,7 +218,7 @@ public class NoteActivity extends AppCompatActivity {
     private void moveNext() {
         saveNote();
 
-        mNotePosition++;
+        ++mNotePosition;
         mNote = DataManager.getInstance().getNotes().get(mNotePosition);
 
         saveOriginalNoteValues();
