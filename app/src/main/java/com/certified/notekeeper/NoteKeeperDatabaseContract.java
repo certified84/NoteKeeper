@@ -3,6 +3,7 @@ package com.certified.notekeeper;
 import android.provider.BaseColumns;
 
 public final class NoteKeeperDatabaseContract {
+
     private NoteKeeperDatabaseContract() {}
 
     public static final class CourseInfoEntry implements BaseColumns {

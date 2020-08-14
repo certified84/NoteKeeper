@@ -33,7 +33,9 @@ public class DataManager {
         final Cursor courseCursor = db.query(CourseInfoEntry.TABLE_NAME, courseColumns,
                 null, null, null, null,
                 CourseInfoEntry.COLUMN_COURSE_TITLE + " ASC");
-        loadCoursesFromDatabase(courseCursor);
+        if(courseCursor != null) {
+            loadCoursesFromDatabase(courseCursor);
+        }
 
         final String[] noteColumns = {
                 NoteInfoEntry.COLUMN_NOTE_TITLE,
@@ -45,7 +47,9 @@ public class DataManager {
         final Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
                 null, null, null, null,
                 noteOrderby);
-        loadNotesFromDatabase(noteCursor);
+        if(noteCursor != null) {
+            loadNotesFromDatabase(noteCursor);
+        }
     }
 
     private static void loadNotesFromDatabase(Cursor cursor) {
@@ -63,7 +67,7 @@ public class DataManager {
             int id = cursor.getInt(idPos);
 
             CourseInfo noteCourse = dm.getCourse(courseId);
-            NoteInfo note = new NoteInfo(noteCourse, noteTitle, noteText);
+            NoteInfo note = new NoteInfo(id, noteCourse, noteTitle, noteText);
             dm.mNotes.add(note);
         }
         cursor.close();
