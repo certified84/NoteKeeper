@@ -3,41 +3,44 @@ package com.certified.notekeeper;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Created by Jim.
+ */
+
 public final class NoteInfo implements Parcelable {
-    private CourseInfo mCourse;
+    private com.certified.notekeeper.CourseInfo mCourse;
     private String mTitle;
     private String mText;
     private int mId;
 
-
-    public NoteInfo(CourseInfo course, String title, String text) {
-        mCourse = course;
-        mTitle = title;
-        mText = text;
-    }
-
-    private NoteInfo(Parcel parcel) {
-        mCourse = parcel.readParcelable(CourseInfo.class.getClassLoader());
-        mTitle = parcel.readString();
-        mText = parcel.readString();
-    }
-
-    public NoteInfo (int id, CourseInfo course, String title, String text) {
+    public NoteInfo(int id, com.certified.notekeeper.CourseInfo course, String title, String text) {
         mId = id;
         mCourse = course;
         mTitle = title;
         mText = text;
     }
 
+    public NoteInfo(com.certified.notekeeper.CourseInfo course, String title, String text) {
+        mCourse = course;
+        mTitle = title;
+        mText = text;
+    }
+
+    private NoteInfo(Parcel source) {
+        mCourse = source.readParcelable(com.certified.notekeeper.CourseInfo.class.getClassLoader());
+        mTitle = source.readString();
+        mText = source.readString();
+    }
+
     public int getId() {
         return mId;
     }
 
-    public CourseInfo getCourse() {
+    public com.certified.notekeeper.CourseInfo getCourse() {
         return mCourse;
     }
 
-    public void setCourse(CourseInfo course) {
+    public void setCourse(com.certified.notekeeper.CourseInfo course) {
         mCourse = course;
     }
 
@@ -66,7 +69,7 @@ public final class NoteInfo implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NoteInfo that = (NoteInfo) o;
+        com.certified.notekeeper.NoteInfo that = (com.certified.notekeeper.NoteInfo) o;
 
         return getCompareKey().equals(that.getCompareKey());
     }
@@ -87,22 +90,23 @@ public final class NoteInfo implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeParcelable(mCourse, 0);
-        parcel.writeString(mTitle);
-        parcel.writeString(mText);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(mCourse, 0);
+        dest.writeString(mTitle);
+        dest.writeString(mText);
     }
 
-    public static final Creator<NoteInfo> CREATOR =
-            new Creator<NoteInfo>() {
+    public final static Creator<com.certified.notekeeper.NoteInfo> CREATOR =
+            new Creator<com.certified.notekeeper.NoteInfo>() {
+
                 @Override
-                public NoteInfo createFromParcel(Parcel parcel) {
-                    return new NoteInfo(parcel);
+                public com.certified.notekeeper.NoteInfo createFromParcel(Parcel source) {
+                    return new com.certified.notekeeper.NoteInfo(source);
                 }
 
                 @Override
-                public NoteInfo[] newArray(int size) {
-                    return new NoteInfo[size];
+                public com.certified.notekeeper.NoteInfo[] newArray(int size) {
+                    return new com.certified.notekeeper.NoteInfo[size];
                 }
             };
 }
