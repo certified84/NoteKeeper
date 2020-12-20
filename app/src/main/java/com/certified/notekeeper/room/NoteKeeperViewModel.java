@@ -11,6 +11,7 @@ import com.certified.notekeeper.model.Course;
 import com.certified.notekeeper.model.Note;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class NoteKeeperViewModel extends AndroidViewModel {
 
@@ -65,7 +66,7 @@ public class NoteKeeperViewModel extends AndroidViewModel {
         return allCourses;
     }
 
-    public String getAllCourseIdAt(String courseTitle) {
+    public String getCourseId(String courseTitle) {
         return repository.getCourseId(courseTitle);
     }
 }

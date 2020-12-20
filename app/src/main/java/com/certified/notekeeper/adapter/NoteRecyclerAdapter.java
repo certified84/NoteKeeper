@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.certified.notekeeper.R;
 import com.certified.notekeeper.model.Note;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by Samson.
  */
@@ -41,18 +43,13 @@ public class NoteRecyclerAdapter extends ListAdapter<Note, NoteRecyclerAdapter.V
     };
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public @NotNull ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note_list, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-//        mCursor.moveToPosition(position);
-//        String course = mCursor.getString(mCoursePos);
-//        String noteTitle = mCursor.getString(mNoteTitlePos);
-//        int id = mCursor.getInt(mIdPos);
-
         Note currentNote = getItem(position);
         holder.mTextCourse.setText(currentNote.getNoteText());
         holder.mTextTitle.setText(currentNote.getNoteTitle());
@@ -79,16 +76,10 @@ public class NoteRecyclerAdapter extends ListAdapter<Note, NoteRecyclerAdapter.V
             mTextCourse = itemView.findViewById(R.id.text_course);
             mTextTitle = itemView.findViewById(R.id.text_title);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (listener != null && position != RecyclerView.NO_POSITION) {
-                    }
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
                     listener.onNoteClick(getItem(position));
-//                    Intent intent = new Intent(mContext, NoteActivity.class);
-//                    intent.putExtra(NoteActivity.NOTE_ID, mId);
-//                    mContext.startActivity(intent);
                 }
             });
         }

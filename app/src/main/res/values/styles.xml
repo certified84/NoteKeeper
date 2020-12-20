@@ -30,7 +30,7 @@
     </style>
 
     <style name="AddFab" parent="@style/Widget.Design.FloatingActionButton">
-        <item name="srcCompat">@drawable/ic_add_circle_black_24dp</item>
+        <item name="srcCompat">@drawable/ic_add</item>
         <item name="android:tint">@android:color/white</item>
     </style>
 </resources>

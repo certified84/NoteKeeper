@@ -7,6 +7,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,6 +17,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +30,6 @@ import com.certified.notekeeper.room.NoteKeeperViewModel;
 import com.certified.notekeeper.util.Extras;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    public static final int LOADER_NOTES = 0;
     private NoteRecyclerAdapter mNoteRecyclerAdapter;
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mNotesLayoutManager;
@@ -41,10 +44,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        noteKeeperViewModel = new NoteKeeperViewModel(getApplication());
+
+        View view = findViewById(R.id.view);
+        FloatingActionButton fabAddNote = findViewById(R.id.fab_add_note);
+        FloatingActionButton fabAddCourse = findViewById(R.id.fab_add_course);
+        FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
+
+        fab.setOnClickListener(v -> {
+            if (view.getVisibility() == View.VISIBLE) {
+                view.setVisibility(View.GONE);
+                fabAddNote.setVisibility(View.GONE);
+                fabAddCourse.setVisibility(View.GONE);
+                fabAddTask.setVisibility(View.GONE);
+            } else {
+                view.setVisibility(View.VISIBLE);
+                fabAddNote.setVisibility(View.VISIBLE);
+                fabAddCourse.setVisibility(View.VISIBLE);
+                fabAddTask.setVisibility(View.VISIBLE);
+            }
+        });
+
+        fabAddNote.setOnClickListener(v -> {
+            view.setVisibility(View.GONE);
+            fabAddNote.setVisibility(View.GONE);
+            fabAddCourse.setVisibility(View.GONE);
+            fabAddTask.setVisibility(View.GONE);
             Intent intent = new Intent(MainActivity.this, NoteActivity.class);
             startActivity(intent);
+        });
+
+        fabAddCourse.setOnClickListener(v -> {
+            view.setVisibility(View.GONE);
+            fabAddNote.setVisibility(View.GONE);
+            fabAddCourse.setVisibility(View.GONE);
+            fabAddTask.setVisibility(View.GONE);
+        });
+
+        fabAddTask.setOnClickListener(v -> {
+            view.setVisibility(View.GONE);
+            fabAddNote.setVisibility(View.GONE);
+            fabAddCourse.setVisibility(View.GONE);
+            fabAddTask.setVisibility(View.GONE);
+        });
+
+        view.setOnClickListener(v -> {
+                view.setVisibility(View.GONE);
+                fabAddNote.setVisibility(View.GONE);
+                fabAddCourse.setVisibility(View.GONE);
+                fabAddTask.setVisibility(View.GONE);
         });
 
 //        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
@@ -62,6 +111,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initializeDisplayContent();
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                noteKeeperViewModel.deleteNote(mNoteRecyclerAdapter.getNoteAt(viewHolder.getAdapterPosition()));
+                Toast.makeText(MainActivity.this, "Note deleted", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(mRecyclerItems);
+
         mNoteRecyclerAdapter.setOnNoteClickedListener(note -> {
             Intent intent = new Intent(MainActivity.this, NoteActivity.class);
             intent.putExtra(Extras.EXTRA_ID, note.getId());
@@ -70,11 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra(Extras.EXTRA_COURSE_ID, note.getCourseId());
             startActivity(intent);
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
@@ -104,37 +162,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getResources().getInteger(R.integer.course_grid_span));
 
         mCourseRecyclerAdapter = new CourseRecyclerAdapter();
-
         mNoteRecyclerAdapter = new NoteRecyclerAdapter();
 
-        noteKeeperViewModel = new NoteKeeperViewModel(getApplication());
         displayNotes();
     }
 
     private void displayNotes() {
         mRecyclerItems.setLayoutManager(mNotesLayoutManager);
         mRecyclerItems.setAdapter(mNoteRecyclerAdapter);
-        noteKeeperViewModel.getAllNotes().observe(this, notes -> {
-            mNoteRecyclerAdapter.submitList(notes);
-        });
+        noteKeeperViewModel.getAllNotes().observe(this, notes -> mNoteRecyclerAdapter.submitList(notes));
 
         selectNavigationMenuItem(R.id.nav_notes);
+    }
+
+    private void displayCourses() {
+        mRecyclerItems.setLayoutManager(mCoursesLayoutManager);
+        mRecyclerItems.setAdapter(mCourseRecyclerAdapter);
+        noteKeeperViewModel.getAllCourses().observe(this, courses -> mCourseRecyclerAdapter.submitList(courses));
+
+        selectNavigationMenuItem(R.id.nav_courses);
     }
 
     private void selectNavigationMenuItem(int id) {
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
         menu.findItem(id).setChecked(true);
-    }
-
-    private void displayCourses() {
-        mRecyclerItems.setLayoutManager(mCoursesLayoutManager);
-        mRecyclerItems.setAdapter(mCourseRecyclerAdapter);
-        noteKeeperViewModel.getAllCourses().observe(this, courses -> {
-            mCourseRecyclerAdapter.submitList(courses);
-        });
-
-        selectNavigationMenuItem(R.id.nav_courses);
     }
 
     @Override
@@ -170,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.

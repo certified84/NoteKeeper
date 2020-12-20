@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -26,14 +24,12 @@ import static android.text.TextUtils.isEmpty;
 
 public class NoteActivity extends AppCompatActivity {
 
+    public static final int ID_NOT_SET = -1;
     private final String TAG = getClass().getSimpleName();
-
     private String mOriginalNoteCourseId;
     private String mOriginalNoteTitle;
-    private String mOriginalNoteText;
 //    private String mCourseId;
-
-    public static final int ID_NOT_SET = -1;
+    private String mOriginalNoteText;
     private int mNoteId;
     private boolean mIsCancelling;
     private int spinnerSelection;
@@ -80,14 +76,19 @@ public class NoteActivity extends AppCompatActivity {
             mOriginalNoteCourseId = intent.getStringExtra(Extras.EXTRA_COURSE_ID);
             mNoteId = intent.getIntExtra(Extras.EXTRA_ID, ID_NOT_SET);
 
-            if (mOriginalNoteCourseId.equals("java_lang")) {
-                spinnerSelection = 0;
-            } else if (mOriginalNoteCourseId.equals("android_intents")) {
-                spinnerSelection = 1;
-            } else if (mOriginalNoteCourseId.equals("java_core")) {
-                spinnerSelection = 2;
-            } else if (mOriginalNoteCourseId.equals("android_async")) {
-                spinnerSelection = 3;
+            switch (mOriginalNoteCourseId) {
+                case "java_lang":
+                    spinnerSelection = 0;
+                    break;
+                case "android_intents":
+                    spinnerSelection = 1;
+                    break;
+                case "java_core":
+                    spinnerSelection = 2;
+                    break;
+                case "android_async":
+                    spinnerSelection = 3;
+                    break;
             }
 
         } else
@@ -126,18 +127,7 @@ public class NoteActivity extends AppCompatActivity {
         String noteTitle = mTextNoteTitle.getText().toString().trim();
         String noteText = mTextNoteText.getText().toString().trim();
         String courseTitle = mSpinnerCourses.getSelectedItem().toString();
-        String courseId = viewModel.getAllCourseIdAt(courseTitle);
-
-//        mSpinnerCourses.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
+        String courseId = viewModel.getCourseId(courseTitle);
 
         if (isEmpty(noteTitle)) {
             Log.i(TAG, "saveNote: Note can't be empty");
@@ -146,7 +136,9 @@ public class NoteActivity extends AppCompatActivity {
         }
 
         if (intent.hasExtra(Extras.EXTRA_ID)) {
-            if (!noteTitle.equals(mOriginalNoteTitle) || !noteText.equals(mOriginalNoteText)) {
+            if (!noteTitle.equals(mOriginalNoteTitle) || !noteText.equals(mOriginalNoteText)
+                    || !courseId.equals(mOriginalNoteCourseId)) {
+
                 Log.i(TAG, "saveNote: Updating note");
                 Note note = new Note(courseId, noteTitle, noteText);
                 note.setId(mNoteId);

@@ -10,6 +10,9 @@ import com.certified.notekeeper.room.NoteKeeperDao;
 import com.certified.notekeeper.room.NoteKeeperDatabase;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NoteRepository {
 
@@ -26,27 +29,27 @@ public class NoteRepository {
     }
 
     public void insertNote(Note note) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.insertNote(note));
+        executor.execute(() -> noteKeeperDao.insertNote(note));
     }
 
     public void insertCourse(Course course) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.insertCourse(course));
+        executor.execute(() -> noteKeeperDao.insertCourse(course));
     }
 
     public void updateNote(Note note) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.updateNote(note));
+        executor.execute(() -> noteKeeperDao.updateNote(note));
     }
 
     public void updateCourse(Course course) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.updateCourse(course));
+        executor.execute(() -> noteKeeperDao.updateCourse(course));
     }
 
     public void deleteNote(Note note) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.deleteNote(note));
+        executor.execute(() -> noteKeeperDao.deleteNote(note));
     }
 
     public void deleteCourse(Course course) {
-        NoteKeeperDatabase.databaseWriteExecutor.execute(() -> noteKeeperDao.deleteCourse(course));
+        executor.execute(() -> noteKeeperDao.deleteCourse(course));
     }
 
     public void deleteAllNotes() {
@@ -66,8 +69,13 @@ public class NoteRepository {
     }
 
     public String getCourseId(String courseTitle) {
-        NoteKeeperDatabase.databaseWriteExecutor.submit(() -> noteKeeperDao.getCourseId(courseTitle));
-//        return noteKeeperDao.getCourseIdAt(courseTitle);
-        return "";
+        try {
+            return executor.submit(() -> noteKeeperDao.getCourseId(courseTitle)).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
+    
+    public static final ExecutorService executor = Executors.newSingleThreadExecutor();
 }
